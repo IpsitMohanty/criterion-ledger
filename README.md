@@ -2,6 +2,8 @@
 
 A personal, offline watch-tracker for the [Criterion Channel](https://www.criterionchannel.com) catalog. Not affiliated with or endorsed by The Criterion Collection — this is an unofficial tool built for personal use.
 
+I built this as a cinephile trying to actually work through a 3,000+ film catalog with some intention — tracking what I've seen, building director retrospectives instead of watching at random, and catching things before they leave the service. If you're in the same boat, feel free to use it too.
+
 Everything runs as a single self-contained HTML file, no server, no build step, no account required. Your watch history stays in your own browser's local storage — nothing is uploaded anywhere.
 
 ## What it does
