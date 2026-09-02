@@ -13,7 +13,7 @@ Everything runs as a single self-contained HTML file, no server, no build step, 
 - **Random Pick** — draws a random unwatched film, filterable by year range, country, or director.
 - **Expiring Watch** — links to Criterion's own official monthly "leaving soon" list (published at the start of each month), with a paste-and-cross-check tool against your own catalog and watch status.
 - **Insights** — breakdowns of your watching by decade, country, and director, plus a daily/trend view of your watching pace over time.
-- **Export watched films** — download a CSV of everything you've watched (title, director, country, year, date watched).
+- **Export watched films** — download a CSV of everything you've watched (title, director, country, year, date watched), including films that have since been removed from the catalog — your watch history is never lost even if Criterion later pulls a title.
 
 The catalog updates by re-running the included scraper and loading the fresh JSON into the tracker — see below.
 
