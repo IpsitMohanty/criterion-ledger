@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root{
+  --bg:#0d0c0a; --bg2:#17140f; --card:#1c1915; --card2:#221e18; --line:#332c22;
+  --ink:#ede6d8; --ink-dim:#a89a80; --ink-faint:#6e6352;
+  --gold:#c8a24a; --gold-dim:#8a7038; --gold-glow:rgba(200,162,74,.15);
+  --red:#a34a36; --green:#5c8a5c;
+  --font-display:'Fraunces','Georgia',serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono','Courier New',monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(ellipse 1200px 600px at 50% -200px, var(--gold-glow), transparent),
+    var(--bg);
+  color:var(--ink);
+  font-family:var(--font-body);
+  min-height:100vh;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:36px 24px 80px;}
+
+/* Header */
+header{margin-bottom:32px;border-bottom:1px solid var(--line);padding-bottom:24px;}
+.eyebrow{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;
+  color:var(--gold-dim);text-transform:uppercase;margin:0 0 10px;
+}
+h1{
+  font-family:var(--font-display);font-weight:600;font-size:42px;
+  margin:0 0 6px;letter-spacing:-.01em;color:var(--ink);
+}
+h1 em{font-style:italic;font-weight:300;color:var(--gold);}
+.sub{color:var(--ink-dim);font-size:14.5px;margin:0;max-width:560px;line-height:1.5;}
+.stats-row{display:flex;gap:28px;margin-top:18px;flex-wrap:wrap;}
+.stat{font-family:var(--font-mono);font-size:12px;color:var(--ink-faint);}
+.stat b{color:var(--gold);font-size:16px;font-family:var(--font-display);font-weight:600;display:block;}
+.stat.clickable{cursor:pointer;transition:.15s;border-radius:3px;padding:2px 6px;margin:-2px -6px;}
+.stat.clickable:hover{background:var(--card2);}
+.stat.clickable:hover b{color:#ddb45f;}
+
+/* Tabs */
+.tabs{display:flex;gap:2px;margin-bottom:28px;border-bottom:1px solid var(--line);}
+.tab{
+  font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;
+  padding:12px 18px;color:var(--ink-faint);cursor:pointer;background:none;border:none;
+  border-bottom:2px solid transparent;text-transform:uppercase;transition:.15s;
+}
+.tab:hover{color:var(--ink-dim);}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.panel{display:none;animation:fade .25s ease;}
+.panel.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+/* Controls */
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;align-items:center;}
+input[type=text],select{
+  background:var(--card);border:1px solid var(--line);color:var(--ink);
+  font-family:var(--font-body);font-size:13px;padding:9px 12px;border-radius:3px;
+  outline:none;
+}
+input[type=text]:focus,select:focus{border-color:var(--gold-dim);}
+input[type=text]{min-width:220px;}
+.btn{
+  font-family:var(--font-mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
+  background:var(--card2);border:1px solid var(--line);color:var(--ink-dim);
+  padding:9px 16px;border-radius:3px;cursor:pointer;transition:.15s;
+}
+.btn:hover{border-color:var(--gold-dim);color:var(--ink);}
+.btn.primary{background:var(--gold-dim);border-color:var(--gold-dim);color:#0d0c0a;font-weight:600;}
+.btn.primary:hover{background:var(--gold);border-color:var(--gold);}
+.btn:disabled{opacity:.4;cursor:default;}
+
+/* Film rows / table */
+.filmlist{border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--card);}
+.filmrow{
+  display:grid;grid-template-columns:32px 1fr 180px 100px 60px 90px;
+  gap:14px;align-items:center;padding:11px 16px;border-bottom:1px solid var(--line);
+  font-size:13.5px;
+}
+.filmrow:last-child{border-bottom:none;}
+.filmrow.header{
+  font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--ink-faint);background:var(--card2);padding:9px 16px;
+}
+.filmrow .ttl{color:var(--ink);}
+.filmrow .ttl a{color:inherit;text-decoration:none;}
+.filmrow .ttl a:hover{color:var(--gold);}
+.new-tag{
+  font-family:var(--font-mono);font-size:9px;font-weight:600;letter-spacing:.04em;
+  background:var(--gold-dim);color:#0d0c0a;padding:1px 5px;border-radius:2px;vertical-align:middle;
+}
+.dir-status-tag{
+  font-family:var(--font-mono);font-size:9.5px;letter-spacing:.03em;padding:2px 7px;border-radius:2px;
+}
+.dir-status-tag.only-film{background:var(--card2);color:var(--ink-faint);border:1px solid var(--line);}
+.dir-status-tag.complete{background:var(--green);color:#0d0c0a;}
+.dir-status-tag.sampled{background:var(--card2);color:var(--gold);border:1px solid var(--gold-dim);}
+.filmrow .dir{color:var(--ink-dim);}
+.dir-link{cursor:pointer;transition:.15s;}
+.dir-link:hover{color:var(--gold);text-decoration:underline;text-decoration-color:var(--gold-dim);}
+.filmrow .ctry{color:var(--ink-faint);font-size:12.5px;}
+.filmrow .yr{color:var(--ink-faint);font-family:var(--font-mono);font-size:12px;}
+.check{width:16px;height:16px;accent-color:var(--gold);cursor:pointer;}
+.filmrow.is-watched{background:rgba(92,138,92,.08);}
+.filmrow.is-watched .ttl{color:var(--ink-dim);}
+.seen-mark{color:var(--green);font-family:var(--font-mono);font-size:13px;text-align:center;}
+.empty{padding:40px;text-align:center;color:var(--ink-faint);font-size:13px;font-family:var(--font-mono);}
+.scroll-y{max-height:560px;overflow-y:auto;}
+
+/* Retrospective cards */
+.retro-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.retro-card{
+  background:var(--card);border:1px solid var(--line);border-radius:4px;padding:18px 20px;
+  cursor:pointer;transition:.15s;
+}
+.retro-card:hover{border-color:var(--gold-dim);}
+.retro-card .name{font-family:var(--font-display);font-size:19px;color:var(--ink);margin:0 0 4px;font-weight:600;}
+.retro-card .count{font-family:var(--font-mono);font-size:11px;color:var(--gold);letter-spacing:.05em;}
+.retro-detail{margin-top:20px;}
+.retro-detail h3{font-family:var(--font-display);font-size:24px;margin:0 0 4px;}
+.retro-detail .yrs{color:var(--ink-faint);font-size:12px;font-family:var(--font-mono);margin-bottom:14px;}
+
+/* Random pick */
+.pick-stage{
+  background:var(--card);border:1px solid var(--line);border-radius:6px;
+  padding:48px 40px;text-align:center;min-height:220px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.pick-stage::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 0%, var(--gold-glow), transparent 70%);
+}
+.pick-title{font-family:var(--font-display);font-size:32px;font-weight:600;margin:0 0 8px;position:relative;color:var(--ink);}
+.pick-meta{color:var(--ink-dim);font-size:14px;position:relative;margin-bottom:18px;}
+.pick-meta .dot{color:var(--ink-faint);margin:0 8px;}
+.pick-link{
+  font-family:var(--font-mono);font-size:11.5px;color:var(--gold);text-decoration:none;
+  border-bottom:1px solid var(--gold-dim);padding-bottom:2px;position:relative;
+}
+.pick-empty{color:var(--ink-faint);font-family:var(--font-mono);font-size:13px;}
+
+/* Expiring panel */
+.info-box{
+  background:var(--card2);border:1px solid var(--line);border-left:3px solid var(--gold-dim);
+  padding:16px 20px;border-radius:3px;font-size:13px;color:var(--ink-dim);line-height:1.6;margin-bottom:20px;
+}
+.info-box b{color:var(--ink);}
+.diff-row{display:grid;grid-template-columns:1fr 180px 100px;gap:14px;padding:10px 16px;border-bottom:1px solid var(--line);font-size:13px;}
+.diff-row.added{color:var(--green);}
+.diff-row.removed{color:var(--red);text-decoration:line-through;text-decoration-color:var(--red);}
+
+/* Insights */
+.chart-block{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:20px 24px;margin-bottom:20px;}
+.chart-title{font-family:var(--font-display);font-size:17px;font-weight:600;margin:0 0 14px;color:var(--ink);display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.chart-legend{font-family:var(--font-mono);font-size:10.5px;font-weight:400;color:var(--ink-faint);display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.04em;}
+.swatch{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:2px;}
+.swatch.gold{background:var(--gold);}
+.swatch.dim{background:var(--line);margin-left:10px;}
+.chart-note{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);margin:10px 0 0;}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
+.bar-label{width:150px;flex-shrink:0;font-size:12px;color:var(--ink-dim);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bar-track{flex:1;height:16px;background:var(--card2);border-radius:2px;overflow:hidden;display:flex;position:relative;}
+.bar-fill-watched{background:var(--gold);height:100%;}
+.bar-fill-total{background:var(--line);height:100%;}
+.bar-count{width:80px;flex-shrink:0;font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);}
+.empty-chart{color:var(--ink-faint);font-family:var(--font-mono);font-size:12px;padding:20px 0;}
+.pace-view-btn.active{background:var(--gold-dim);color:#0d0c0a;font-weight:600;}
+
+/* Catalog update diff */
+.catalog-diff-box{
+  background:var(--card2);border:1px solid var(--gold-dim);border-left:3px solid var(--gold);
+  border-radius:3px;padding:14px 20px;margin-bottom:24px;
+}
+.catalog-diff-summary{
+  font-family:var(--font-mono);font-size:12.5px;color:var(--ink);
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+}
+.catalog-diff-summary .added{color:var(--green);}
+.catalog-diff-summary .removed{color:var(--red);}
+.catalog-diff-summary .toggle-link{
+  color:var(--gold);cursor:pointer;text-decoration:underline;text-decoration-color:var(--gold-dim);
+  margin-left:auto;font-size:11.5px;
+}
+.catalog-diff-details{margin-top:12px;max-height:280px;overflow-y:auto;border-top:1px solid var(--line);padding-top:10px;}
+
+/* Back-to-top button lives further below, defined once. */
+::-webkit-scrollbar{width:8px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px;}
+
+#back-to-top{
+  position:fixed;bottom:28px;right:28px;
+  width:44px;height:44px;border-radius:50%;
+  background:var(--card2);border:1px solid var(--gold-dim);color:var(--gold);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:18px;box-shadow:0 4px 14px rgba(0,0,0,.4);
+  opacity:0;pointer-events:none;transform:translateY(8px);
+  transition:opacity .2s ease,transform .2s ease,border-color .15s;
+  z-index:100;
+}
+#back-to-top.visible{opacity:1;pointer-events:auto;transform:translateY(0);}
+#back-to-top:hover{border-color:var(--gold);background:var(--card);transform:translateY(-2px);}
+</style>
+
+<button id="back-to-top" title="Back to top" aria-label="Back to top">&uarr;</button>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Personal Archive &mdash; The Criterion Channel</p>
+    <h1>Watch <em>Ledger</em></h1>
+    <p class="sub">A private tracker for the full Criterion Channel catalog. Mark what you've seen, build director retrospectives, let the ledger pick your next film, and watch for what's about to leave.</p>
+    <div class="stats-row">
+      <div class="stat"><b id="stat-total">&mdash;</b>total films</div>
+      <div class="stat clickable" id="stat-watched-btn"><b id="stat-watched">&mdash;</b>watched</div>
+      <div class="stat"><b id="stat-directors">&mdash;</b>directors</div>
+      <div class="stat"><b id="stat-countries">&mdash;</b>countries</div>
+      <div class="stat" style="margin-left:auto;">
+        <label class="btn" style="cursor:pointer;font-size:10.5px;">Update catalog (.json)<input type="file" id="catalog-file" accept=".json" style="display:none;"></label>
+        <div id="catalog-status" style="font-family:var(--font-mono);font-size:10px;color:var(--ink-faint);margin-top:6px;"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="catalog-diff-box" id="catalog-diff-box" style="display:none;">
+    <div class="catalog-diff-summary" id="catalog-diff-summary"></div>
+    <div class="catalog-diff-details" id="catalog-diff-details" style="display:none;"></div>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="tracker">Tracker</button>
+    <button class="tab" data-tab="retro">Retrospectives</button>
+    <button class="tab" data-tab="random">Random Pick</button>
+    <button class="tab" data-tab="expiring">Expiring Watch</button>
+    <button class="tab" data-tab="insights">Insights</button>
+  </nav>
+
+  <!-- TRACKER -->
+  <section class="panel active" id="panel-tracker">
+    <div class="controls">
+      <input type="text" id="search" placeholder="Search title or director&hellip;">
+      <select id="filter-status">
+        <option value="all">All</option>
+        <option value="watched">Watched</option>
+        <option value="unwatched">Unwatched</option>
+        <option value="new">Newly added</option>
+      </select>
+      <select id="filter-country"><option value="">All countries</option></select>
+      <select id="filter-director"><option value="">All directors</option></select>
+      <input type="text" id="filter-year-from" placeholder="From year" style="width:100px;" inputmode="numeric">
+      <span style="color:var(--ink-faint);font-family:var(--font-mono);font-size:12px;">&ndash;</span>
+      <input type="text" id="filter-year-to" placeholder="To year" style="width:100px;" inputmode="numeric">
+      <button class="btn" id="clear-filters">Clear filters</button>
+      <span id="loading-note" style="margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);"></span>
+    </div>
+    <div class="filmlist">
+      <div class="filmrow header">
+        <span></span><span>Title</span><span>Director</span><span>Country</span><span>Year</span><span>Seen</span>
+      </div>
+      <div class="scroll-y" id="tracker-body"></div>
+    </div>
+  </section>
+
+  <!-- RETROSPECTIVES -->
+  <section class="panel" id="panel-retro">
+    <div class="controls">
+      <input type="text" id="retro-search" placeholder="Find a director&hellip;">
+      <select id="retro-sort">
+        <option value="count">Sort by film count</option>
+        <option value="name">Sort A&ndash;Z</option>
+      </select>
+    </div>
+    <div class="retro-grid" id="retro-grid"></div>
+    <div class="retro-detail" id="retro-detail" style="display:none;">
+      <h3 id="retro-detail-name"></h3>
+      <div class="yrs" id="retro-detail-years"></div>
+      <div class="filmlist">
+        <div class="filmrow header" style="grid-template-columns:32px 1fr 100px 90px;">
+          <span></span><span>Title</span><span>Country</span><span>Seen</span>
+        </div>
+        <div id="retro-detail-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RANDOM PICK -->
+  <section class="panel" id="panel-random">
+    <div class="controls">
+      <input type="text" id="pick-year-from" placeholder="From year" style="width:100px;" inputmode="numeric">
+      <span style="color:var(--ink-faint);font-family:var(--font-mono);font-size:12px;">&ndash;</span>
+      <input type="text" id="pick-year-to" placeholder="To year" style="width:100px;" inputmode="numeric">
+      <select id="pick-country"><option value="">Any country</option></select>
+      <select id="pick-director"><option value="">Any director</option></select>
+      <button class="btn primary" id="pick-btn">Draw a film</button>
+    </div>
+    <div class="pick-stage" id="pick-stage">
+      <div class="pick-empty">Set your filters (or leave them open) and draw a film from your unwatched list.</div>
+    </div>
+  </section>
+
+  <!-- EXPIRING -->
+  <section class="panel" id="panel-expiring">
+    <div class="info-box">
+      <b>Criterion actually does publish this ahead of time</b> &mdash; just not on the catalog page we scrape. They post the official "leaving on [date]" list at the <i>start</i> of the month, so you get the full month's notice, not just a last-minute warning.<br><br>
+      Open it, then paste the titles below to see which ones you haven't watched yet. There's also a "what's new this month" writeup if you want to see what just arrived.
+    </div>
+    <div class="controls">
+      <a class="btn primary" id="open-leaving-page" href="#" target="_blank" rel="noopener">Open this month's leaving list &rarr;</a>
+      <a class="btn" id="open-new-page" href="https://www.criterionchannel.com/newly-added" target="_blank" rel="noopener">See what's new this month &rarr;</a>
+    </div>
+    <div class="controls" style="align-items:flex-start;">
+      <textarea id="leaving-paste" placeholder="Paste film titles here, one per line — copy them straight from the page above." rows="6" style="flex:1;min-width:280px;background:var(--card);border:1px solid var(--line);color:var(--ink);font-family:var(--font-body);font-size:13px;padding:10px 12px;border-radius:3px;resize:vertical;"></textarea>
+      <button class="btn primary" id="check-leaving-btn" style="align-self:flex-start;">Check against my catalog</button>
+    </div>
+    <div id="leaving-status" style="font-family:var(--font-mono);font-size:12px;color:var(--ink-faint);margin:14px 0;"></div>
+    <div class="filmlist" id="leaving-results" style="display:none;">
+      <div class="diff-row" style="font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;color:var(--ink-faint);background:var(--card2);">
+        <span>Title</span><span>Director</span><span>Status</span>
+      </div>
+      <div id="leaving-list"></div>
+    </div>
+
+    <details style="margin-top:20px;">
+      <summary style="cursor:pointer;font-family:var(--font-mono);font-size:11.5px;color:var(--ink-faint);letter-spacing:.04em;">Older method: compare two of your own catalog snapshots</summary>
+      <div class="controls" style="margin-top:14px;">
+        <label class="btn" style="cursor:pointer;">Load older snapshot (.json)<input type="file" id="file-old" accept=".json" style="display:none;"></label>
+        <label class="btn" style="cursor:pointer;">Load newer snapshot (.json)<input type="file" id="file-new" accept=".json" style="display:none;"></label>
+        <button class="btn primary" id="diff-btn" disabled>Compare</button>
+      </div>
+      <div id="diff-status" style="font-family:var(--font-mono);font-size:12px;color:var(--ink-faint);margin-bottom:14px;"></div>
+      <div class="filmlist" id="diff-results" style="display:none;">
+        <div class="diff-row" style="font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;color:var(--ink-faint);background:var(--card2);">
+          <span>Title</span><span>Director</span><span>Status</span>
+        </div>
+        <div id="diff-list"></div>
+      </div>
+      <p class="chart-note">This only tells you what already left — useful for your own records, not for a heads-up. Use the tool above for that.</p>
+    </details>
+  </section>
+
+  <!-- INSIGHTS -->
+  <section class="panel" id="panel-insights">
+    <div class="chart-block">
+      <h3 class="chart-title">By decade <span class="chart-legend"><i class="swatch gold"></i>watched <i class="swatch dim"></i>catalogue</span></h3>
+      <div id="chart-decade"></div>
+    </div>
+    <div class="chart-block">
+      <h3 class="chart-title">Top countries <span class="chart-legend"><i class="swatch gold"></i>watched <i class="swatch dim"></i>catalogue</span></h3>
+      <div id="chart-country"></div>
+    </div>
+    <div class="chart-block">
+      <h3 class="chart-title">Directors you return to <span class="chart-legend"><i class="swatch gold"></i>watched <i class="swatch dim"></i>catalogue</span></h3>
+      <div id="chart-director"></div>
+      <p class="chart-note">Only directors with 2+ films in the catalogue — a single-film director never shows up here even if you watched their one available work. See the full list below for that.</p>
+    </div>
+    <div class="chart-block">
+      <h3 class="chart-title" style="justify-content:space-between;">
+        <span>Every director you've watched</span>
+        <span style="display:flex;gap:8px;">
+          <input type="text" id="all-dir-search" placeholder="Search…" style="font-family:var(--font-mono);font-size:11px;background:var(--card2);border:1px solid var(--line);color:var(--ink-dim);padding:5px 8px;border-radius:3px;width:140px;">
+          <select id="all-dir-sort" style="font-family:var(--font-mono);font-size:11px;background:var(--card2);border:1px solid var(--line);color:var(--ink-dim);padding:5px 8px;border-radius:3px;">
+            <option value="watched">Most watched</option>
+            <option value="name">A&ndash;Z</option>
+            <option value="complete">Completion %</option>
+          </select>
+        </span>
+      </h3>
+      <div class="filmlist" id="all-dir-list" style="max-height:400px;overflow-y:auto;"></div>
+      <p class="chart-note">Every director you've watched at least one film by, no minimum catalogue size &mdash; single-film directors included.</p>
+    </div>
+    <div class="chart-block">
+      <h3 class="chart-title" style="justify-content:space-between;">
+        <span>Your watching pace</span>
+        <span style="display:flex;gap:8px;align-items:center;">
+          <select id="pace-range" style="font-family:var(--font-mono);font-size:11px;background:var(--card2);border:1px solid var(--line);color:var(--ink-dim);padding:5px 8px;border-radius:3px;">
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="365">Last year</option>
+            <option value="all" selected>All time</option>
+          </select>
+          <span style="display:flex;border:1px solid var(--line);border-radius:3px;overflow:hidden;">
+            <button class="btn pace-view-btn active" data-view="bars" style="border:none;border-radius:0;font-size:10.5px;padding:5px 10px;">Daily bars</button>
+            <button class="btn pace-view-btn" data-view="trend" style="border:none;border-radius:0;font-size:10.5px;padding:5px 10px;">Trend line</button>
+          </span>
+        </span>
+      </h3>
+      <div id="chart-progress"></div>
+      <p class="chart-note" id="pace-note"></p>
+    </div>
+  </section>
+</div>
+
+<script>
+const EMBEDDED_FILMS = [];
+</script>
+<script>
+// ---------- storage (works both inside Claude artifacts AND as a standalone downloaded file) ----------
+// window.storage only exists inside Claude's artifact panel. When this file is opened
+// directly in a browser (double-clicked, or via file://), it's undefined — so we fall
+// back to localStorage, which persists fine for a file you keep reopening yourself.
+const HAS_PLATFORM_STORAGE = (typeof window !== "undefined" && !!window.storage);
+
+async function storageGet(key){
+  if(HAS_PLATFORM_STORAGE){
+    try{ return await window.storage.get(key, false); }
+    catch(e){ /* fall through to localStorage */ }
+  }
+  try{
+    const raw = localStorage.getItem("criterion-tracker::"+key);
+    return raw === null ? null : { value: raw };
+  }catch(e){ return null; }
+}
+async function storageSet(key, value){
+  if(HAS_PLATFORM_STORAGE){
+    try{ await window.storage.set(key, value, false); return true; }
+    catch(e){ /* fall through to localStorage */ }
+  }
+  try{
+    localStorage.setItem("criterion-tracker::"+key, value);
+    return true;
+  }catch(e){ return false; }
+}
+
+const STORE_KEY = "watched-films";
+const CATALOG_KEY = "catalog-data";
+const CATALOG_META_KEY = "catalog-updated-at";
+const ADDED_DATES_KEY = "film-added-dates";
+const REMOVED_LOG_KEY = "removed-films-log";
+let addedDates = {};   // { url: timestampFirstSeen }
+let removedLog = [];   // [{ title, director, url, removedAt }]
+
+async function loadTrackingMeta(){
+  try{
+    const res = await storageGet(ADDED_DATES_KEY);
+    addedDates = res && res.value ? JSON.parse(res.value) : {};
+  }catch(e){ addedDates = {}; }
+  try{
+    const res = await storageGet(REMOVED_LOG_KEY);
+    removedLog = res && res.value ? JSON.parse(res.value) : [];
+  }catch(e){ removedLog = []; }
+}
+async function saveTrackingMeta(){
+  await storageSet(ADDED_DATES_KEY, JSON.stringify(addedDates));
+  await storageSet(REMOVED_LOG_KEY, JSON.stringify(removedLog.slice(0, 500))); // cap growth
+}
+function isNewArrival(url, withinDays=45){
+  const ts = addedDates[url];
+  if(!ts) return false;
+  return (Date.now() - ts) < withinDays*24*60*60*1000;
+}
+let watched = {}; // { normalizedUrl: true }
+let lastSaveOk = true;
+
+// FILMS starts as the embedded snapshot; a saved catalog update (if any) overrides it on load.
+let FILMS = EMBEDDED_FILMS;
+
+async function loadCatalogOverride(){
+  try{
+    const res = await storageGet(CATALOG_KEY);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      if(Array.isArray(parsed) && parsed.length){
+        FILMS = parsed;
+      }
+    }
+  }catch(e){ /* no saved override yet, keep embedded snapshot */ }
+  await refreshCatalogStatus();
+}
+async function saveCatalogOverride(films){
+  await storageSet(CATALOG_KEY, JSON.stringify(films));
+  await storageSet(CATALOG_META_KEY, JSON.stringify({count: films.length, savedAt: Date.now()}));
+}
+async function refreshCatalogStatus(){
+  const el = document.getElementById("catalog-status");
+  if(!el) return;
+  try{
+    const res = await storageGet(CATALOG_META_KEY);
+    if(res && res.value){
+      const meta = JSON.parse(res.value);
+      const d = new Date(meta.savedAt);
+      el.textContent = `updated ${d.toLocaleDateString()} · ${meta.count} films`;
+      return;
+    }
+  }catch(e){}
+  el.textContent = `using bundled snapshot`;
+}
+
+async function loadWatched(){
+  try{
+    const res = await storageGet(STORE_KEY);
+    watched = res && res.value ? JSON.parse(res.value) : {};
+  }catch(e){
+    watched = {};
+  }
+}
+async function saveWatched(){
+  const ok = await storageSet(STORE_KEY, JSON.stringify(watched));
+  lastSaveOk = ok;
+  updateSaveIndicator();
+}
+function updateSaveIndicator(){
+  const el = document.getElementById("catalog-status");
+  if(!el) return;
+  if(!lastSaveOk){
+    el.textContent = "⚠ couldn't save — check browser storage permissions";
+    el.style.color = "var(--red)";
+  }
+}
+function isWatched(url){ return !!watched[url]; }
+async function toggleWatched(url){
+  if(watched[url]) delete watched[url];
+  else watched[url] = Date.now();
+  await saveWatched();
+}
+
+// ---------- helpers ----------
+function esc(s){
+  return (s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function uniqueSorted(arr){ return [...new Set(arr)].sort((a,b)=>a.localeCompare(b)); }
+
+// ---------- init stats + dropdowns ----------
+function initHeader(){
+  document.getElementById("stat-total").textContent = FILMS.length.toLocaleString();
+  const directors = new Set(), countries = new Set();
+  FILMS.forEach(f=>{
+    (f.director||"").split(/,| and /).forEach(d=>{ d=d.trim(); if(d) directors.add(d); });
+    (f.country||"").split(",").forEach(c=>{ c=c.trim(); if(c) countries.add(c); });
+  });
+  document.getElementById("stat-directors").textContent = directors.size.toLocaleString();
+  document.getElementById("stat-countries").textContent = countries.size.toLocaleString();
+  refreshWatchedStat();
+}
+function refreshWatchedStat(){
+  document.getElementById("stat-watched").textContent = Object.keys(watched).length.toLocaleString();
+}
+
+function resetSelect(sel, placeholderLabel){
+  sel.innerHTML = `<option value="">${placeholderLabel}</option>`;
+}
+function populateCountryFilters(){
+  const countries = uniqueSorted(FILMS.map(f=>f.country).filter(Boolean).flatMap(c=>c.split(",").map(x=>x.trim())));
+  const sel1 = document.getElementById("filter-country");
+  const sel2 = document.getElementById("pick-country");
+  resetSelect(sel1, "All countries");
+  resetSelect(sel2, "Any country");
+  countries.forEach(c=>{
+    sel1.insertAdjacentHTML("beforeend", `<option value="${esc(c)}">${esc(c)}</option>`);
+    sel2.insertAdjacentHTML("beforeend", `<option value="${esc(c)}">${esc(c)}</option>`);
+  });
+}
+function populateYearBounds(){
+  const years = FILMS.map(f=>f.year).filter(y=>y && !isNaN(y));
+  if(!years.length) return;
+  const min = Math.min(...years), max = Math.max(...years);
+  ["filter-year-from","pick-year-from"].forEach(id=>{
+    document.getElementById(id).placeholder = `From ${min}`;
+  });
+  ["filter-year-to","pick-year-to"].forEach(id=>{
+    document.getElementById(id).placeholder = `To ${max}`;
+  });
+}
+function populatePickDirectors(){
+  const directors = uniqueSorted(FILMS.map(f=>f.director).filter(Boolean));
+  const sel = document.getElementById("pick-director");
+  resetSelect(sel, "Any director");
+  directors.forEach(d=>{
+    sel.insertAdjacentHTML("beforeend", `<option value="${esc(d)}">${esc(d)}</option>`);
+  });
+}
+// Tracker's director filter is cascading: it only lists directors from the
+// currently-selected country (or all directors if no country is chosen).
+function populateTrackerDirectors(){
+  const country = document.getElementById("filter-country").value;
+  const pool = country ? FILMS.filter(f=>(f.country||"").includes(country)) : FILMS;
+  const directors = uniqueSorted(pool.map(f=>f.director).filter(Boolean));
+  const sel = document.getElementById("filter-director");
+  const prev = sel.value;
+  resetSelect(sel, "All directors");
+  directors.forEach(d=>{
+    sel.insertAdjacentHTML("beforeend", `<option value="${esc(d)}">${esc(d)}</option>`);
+  });
+  // keep the previous selection if it's still valid for this country
+  if(directors.includes(prev)) sel.value = prev;
+}
+
+// ---------- TRACKER ----------
+function renderTracker(){
+  const qRaw = document.getElementById("search").value.trim().toLowerCase();
+  const qTokens = qRaw.split(/\s+/).filter(Boolean); // each word must appear somewhere, any order
+  const status = document.getElementById("filter-status").value;
+  const country = document.getElementById("filter-country").value;
+  const director = document.getElementById("filter-director").value;
+  const yFrom = parseInt(document.getElementById("filter-year-from").value) || null;
+  const yTo = parseInt(document.getElementById("filter-year-to").value) || null;
+
+  let rows = FILMS.filter(f=>{
+    // free-text search: every typed word just needs to appear somewhere in the
+    // title or director, in any order — so "warped the" or just "ones" both
+    // still find "The Warped Ones" even if you don't remember the first word.
+    if(qTokens.length){
+      const haystack = (f.title + " " + (f.director||"")).toLowerCase();
+      if(!qTokens.every(tok => haystack.includes(tok))) return false;
+    }
+    if(country && !(f.country||"").includes(country)) return false;
+    if(director && f.director !== director) return false;
+    if(yFrom && !(f.year && f.year>=yFrom)) return false;
+    if(yTo && !(f.year && f.year<=yTo)) return false;
+    const w = isWatched(f.url);
+    if(status==="watched" && !w) return false;
+    if(status==="unwatched" && w) return false;
+    if(status==="new" && !isNewArrival(f.url)) return false;
+    return true;
+  });
+
+  const body = document.getElementById("tracker-body");
+  if(rows.length===0){
+    body.innerHTML = `<div class="empty">No films match these filters.</div>`;
+    return;
+  }
+  // cap render for perf, but allow scroll to load more simply by rendering all (list is filtered, usually manageable)
+  const MAX = 800;
+  const shown = rows.slice(0, MAX);
+  body.innerHTML = shown.map(f=>`
+    <div class="filmrow${isWatched(f.url)?" is-watched":""}" data-url="${esc(f.url)}">
+      <input type="checkbox" class="check" ${isWatched(f.url)?"checked":""} data-url="${esc(f.url)}">
+      <span class="ttl"><a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.title)}</a>${isNewArrival(f.url) ? ' <span class="new-tag">NEW</span>' : ''}</span>
+      <span class="dir dir-link" data-director="${esc(f.director)}">${esc(f.director)}</span>
+      <span class="ctry">${esc(f.country)}</span>
+      <span class="yr">${f.year||""}</span>
+      <span class="seen-mark">${isWatched(f.url)?"&#10003;":""}</span>
+    </div>
+  `).join("");
+  document.getElementById("loading-note").textContent =
+    rows.length>MAX ? `showing first ${MAX} of ${rows.length} matches — refine search` : `${rows.length} match${rows.length===1?"":"es"}`;
+
+  body.querySelectorAll(".check").forEach(cb=>{
+    cb.addEventListener("change", async (e)=>{
+      await toggleWatched(e.target.dataset.url);
+      refreshWatchedStat();
+      renderTracker();
+    });
+  });
+  body.querySelectorAll(".dir-link").forEach(el=>{
+    el.addEventListener("click", ()=> jumpToDirector(el.dataset.director));
+  });
+}
+
+// Clicking a director's name anywhere (tracker row, etc.) opens their full
+// filmography in the Retrospectives tab.
+function jumpToDirector(name){
+  if(!name) return;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+  document.querySelector('.tab[data-tab="retro"]').classList.add("active");
+  document.getElementById("panel-retro").classList.add("active");
+  if(!DIRECTOR_INDEX) DIRECTOR_INDEX = buildDirectorIndex();
+  showRetroDetail(name);
+}
+
+// ---------- RETROSPECTIVES ----------
+function buildDirectorIndex(){
+  const map = new Map();
+  FILMS.forEach(f=>{
+    if(!f.director) return;
+    // handle multi-director credits by splitting on " and " / ","
+    const primary = f.director; // keep as full credited string to avoid over-splitting collaborations
+    if(!map.has(primary)) map.set(primary, []);
+    map.get(primary).push(f);
+  });
+  return map;
+}
+let DIRECTOR_INDEX = null;
+
+function renderRetroGrid(){
+  if(!DIRECTOR_INDEX) DIRECTOR_INDEX = buildDirectorIndex();
+  const qRaw = document.getElementById("retro-search").value.trim().toLowerCase();
+  const qTokens = qRaw.split(/\s+/).filter(Boolean);
+  const sortBy = document.getElementById("retro-sort").value;
+
+  let entries = [...DIRECTOR_INDEX.entries()].filter(([name])=>{
+    if(!qTokens.length) return true;
+    const n = name.toLowerCase();
+    return qTokens.every(tok => n.includes(tok));
+  });
+  entries = entries.filter(([,films])=>films.length>=2); // only show real "retrospective" candidates
+  entries.sort((a,b)=> sortBy==="name" ? a[0].localeCompare(b[0]) : b[1].length-a[1].length);
+
+  const grid = document.getElementById("retro-grid");
+  grid.innerHTML = entries.slice(0,150).map(([name,films])=>`
+    <div class="retro-card" data-dir="${esc(name)}">
+      <p class="name">${esc(name)}</p>
+      <p class="count">${films.length} films in catalog</p>
+    </div>
+  `).join("");
+
+  grid.querySelectorAll(".retro-card").forEach(c=>{
+    c.addEventListener("click", ()=> showRetroDetail(c.dataset.dir));
+  });
+}
+function showRetroDetail(name){
+  const films = (DIRECTOR_INDEX.get(name)||[]).slice().sort((a,b)=>(a.year||0)-(b.year||0));
+  const years = films.map(f=>f.year).filter(Boolean);
+  document.getElementById("retro-detail").style.display = "block";
+  document.getElementById("retro-detail-name").textContent = name;
+  document.getElementById("retro-detail-years").textContent =
+    years.length ? `${Math.min(...years)}–${Math.max(...years)} · ${films.length} films` : `${films.length} films`;
+  document.getElementById("retro-detail-list").innerHTML = films.map(f=>`
+    <div class="filmrow${isWatched(f.url)?" is-watched":""}" style="grid-template-columns:32px 1fr 100px 90px;">
+      <input type="checkbox" class="check" ${isWatched(f.url)?"checked":""} data-url="${esc(f.url)}">
+      <span class="ttl"><a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.title)} <span style="color:var(--ink-faint);font-family:var(--font-mono);font-size:11px;">(${f.year||"?"})</span></a></span>
+      <span class="ctry">${esc(f.country)}</span>
+      <span class="seen-mark">${isWatched(f.url)?"&#10003;":""}</span>
+    </div>
+  `).join("");
+  document.getElementById("retro-detail-list").querySelectorAll(".check").forEach(cb=>{
+    cb.addEventListener("change", async (e)=>{
+      await toggleWatched(e.target.dataset.url);
+      refreshWatchedStat();
+    });
+  });
+  document.getElementById("retro-detail").scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+
+// ---------- RANDOM PICK ----------
+function drawPick(){
+  const yFrom = parseInt(document.getElementById("pick-year-from").value) || null;
+  const yTo = parseInt(document.getElementById("pick-year-to").value) || null;
+  const country = document.getElementById("pick-country").value;
+  const director = document.getElementById("pick-director").value;
+
+  let pool = FILMS.filter(f=>{
+    if(isWatched(f.url)) return false;
+    if(yFrom && !(f.year && f.year>=yFrom)) return false;
+    if(yTo && !(f.year && f.year<=yTo)) return false;
+    if(country && !(f.country||"").includes(country)) return false;
+    if(director && f.director !== director) return false;
+    return true;
+  });
+
+  const stage = document.getElementById("pick-stage");
+  if(pool.length===0){
+    stage.innerHTML = `<div class="pick-empty">Nothing left unwatched matching those filters — widen the search or mark something unwatched.</div>`;
+    return;
+  }
+  const pick = pool[Math.floor(Math.random()*pool.length)];
+  stage.innerHTML = `
+    <p class="pick-title">${esc(pick.title)}</p>
+    <p class="pick-meta">${esc(pick.director||"Unknown director")}<span class="dot">·</span>${esc(pick.country||"")}<span class="dot">·</span>${pick.year||""}</p>
+    <a class="pick-link" href="${esc(pick.url)}" target="_blank" rel="noopener">Watch on Criterion Channel &rarr;</a>
+    <div style="margin-top:16px;font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);">${pool.length} film${pool.length===1?"":"s"} matched your filters</div>
+  `;
+}
+
+// ---------- EXPIRING (snapshot diff) ----------
+let snapOld=null, snapNew=null;
+function readJsonFile(input, cb){
+  const f = input.files[0];
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{ cb(JSON.parse(e.target.result)); }
+    catch(err){ document.getElementById("diff-status").textContent = "Couldn't parse that file as JSON."; }
+  };
+  reader.readAsText(f);
+}
+function updateDiffStatus(){
+  const parts = [];
+  parts.push(snapOld ? `older: ${snapOld.length} films` : "older: not loaded");
+  parts.push(snapNew ? `newer: ${snapNew.length} films` : "newer: not loaded");
+  document.getElementById("diff-status").textContent = parts.join("  ·  ");
+  document.getElementById("diff-btn").disabled = !(snapOld && snapNew);
+}
+function runDiff(){
+  const keyOf = f => f.url || f.title;
+  const oldMap = new Map(snapOld.map(f=>[keyOf(f), f]));
+  const newMap = new Map(snapNew.map(f=>[keyOf(f), f]));
+
+  const removed = [...oldMap.keys()].filter(k=>!newMap.has(k)).map(k=>oldMap.get(k));
+  const added   = [...newMap.keys()].filter(k=>!oldMap.has(k)).map(k=>newMap.get(k));
+
+  const results = document.getElementById("diff-results");
+  const list = document.getElementById("diff-list");
+  results.style.display = "block";
+
+  if(removed.length===0 && added.length===0){
+    list.innerHTML = `<div class="empty">No changes between these two snapshots.</div>`;
+    return;
+  }
+  list.innerHTML =
+    removed.map(f=>`<div class="diff-row removed"><span>${esc(f.title)}</span><span>${esc(f.director||"")}</span><span>left catalog</span></div>`).join("")
+    + added.map(f=>`<div class="diff-row added"><span>${esc(f.title)}</span><span>${esc(f.director||"")}</span><span>newly added</span></div>`).join("");
+}
+
+// ---------- LEAVING SOON (real heads-up, cross-checked against your catalog) ----------
+function ordinal(n){
+  const s=["th","st","nd","rd"], v=n%100;
+  return n + (s[(v-20)%10] || s[v] || s[0]);
+}
+function setLeavingLink(){
+  const now = new Date();
+  const lastDay = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const monthName = now.toLocaleString("en-US", {month:"long"}).toLowerCase();
+  const url = `https://www.criterionchannel.com/leaving-${monthName}-${lastDay}`;
+  const link = document.getElementById("open-leaving-page");
+  link.href = url;
+  link.textContent = `Open this month's leaving list (${monthName} ${ordinal(lastDay)}) \u2192`;
+}
+
+function normalizeTitle(s){
+  return (s||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+}
+function checkLeavingList(){
+  const raw = document.getElementById("leaving-paste").value;
+  const lines = raw.split("\n").map(l=>l.trim()).filter(Boolean);
+  const statusEl = document.getElementById("leaving-status");
+  const results = document.getElementById("leaving-results");
+  const list = document.getElementById("leaving-list");
+
+  if(!lines.length){
+    statusEl.textContent = "Paste at least one title above first.";
+    results.style.display = "none";
+    return;
+  }
+
+  const byNorm = new Map();
+  FILMS.forEach(f=> byNorm.set(normalizeTitle(f.title), f));
+
+  const matched = [], unmatched = [];
+  lines.forEach(line=>{
+    const norm = normalizeTitle(line);
+    if(byNorm.has(norm)){
+      matched.push(byNorm.get(norm));
+    }else{
+      const hit = FILMS.find(f=>{
+        const fn = normalizeTitle(f.title);
+        return fn.includes(norm) || norm.includes(fn);
+      });
+      if(hit) matched.push(hit);
+      else unmatched.push(line);
+    }
+  });
+
+  const unwatchedMatches = matched.filter(f=>!isWatched(f.url));
+  statusEl.textContent =
+    `${lines.length} pasted \u00b7 ${matched.length} found in your catalog \u00b7 ${unwatchedMatches.length} still unwatched` +
+    (unmatched.length ? ` \u00b7 ${unmatched.length} not matched (check spelling)` : "");
+
+  results.style.display = "block";
+  list.innerHTML =
+    matched.sort((a,b)=> (isWatched(a.url)?1:0) - (isWatched(b.url)?1:0))
+      .map(f=>`
+        <div class="diff-row ${isWatched(f.url)?'':'added'}">
+          <span><a href="${esc(f.url)}" target="_blank" rel="noopener" style="color:inherit;">${esc(f.title)}</a></span>
+          <span>${esc(f.director||"")}</span>
+          <span>${isWatched(f.url) ? "already watched" : "watch before it's gone"}</span>
+        </div>`).join("")
+    + unmatched.map(l=>`<div class="diff-row"><span>${esc(l)}</span><span></span><span style="color:var(--ink-faint);">not found</span></div>`).join("");
+}
+
+// ---------- INSIGHTS ----------
+function esc2(s){ return esc(s); }
+
+function renderBarGroup(containerId, rows, maxBars){
+  const el = document.getElementById(containerId);
+  const trimmed = rows.slice(0, maxBars);
+  if(!trimmed.length){
+    el.innerHTML = `<div class="empty-chart">Not enough data yet.</div>`;
+    return;
+  }
+  const maxTotal = Math.max(...trimmed.map(r=>r.total), 1);
+  el.innerHTML = trimmed.map(r=>{
+    const watchedPct = (r.watched / maxTotal) * 100;
+    const totalPct = (r.total / maxTotal) * 100;
+    return `
+      <div class="bar-row">
+        <div class="bar-label" title="${esc2(r.label)}">${esc2(r.label)}</div>
+        <div class="bar-track">
+          <div class="bar-fill-total" style="width:${totalPct}%;position:absolute;left:0;"></div>
+          <div class="bar-fill-watched" style="width:${watchedPct}%;position:absolute;left:0;"></div>
+        </div>
+        <div class="bar-count">${r.watched} / ${r.total}</div>
+      </div>`;
+  }).join("");
+}
+
+function computeByDecade(){
+  const map = new Map();
+  FILMS.forEach(f=>{
+    if(!f.year || isNaN(f.year)) return;
+    const decade = Math.floor(f.year/10)*10 + "s";
+    if(!map.has(decade)) map.set(decade, {label:decade, total:0, watched:0, sortKey:Math.floor(f.year/10)});
+    const row = map.get(decade);
+    row.total++;
+    if(isWatched(f.url)) row.watched++;
+  });
+  return [...map.values()].sort((a,b)=>a.sortKey-b.sortKey);
+}
+function computeByCountry(topN=15){
+  const map = new Map();
+  FILMS.forEach(f=>{
+    (f.country||"").split(",").map(c=>c.trim()).filter(Boolean).forEach(c=>{
+      if(!map.has(c)) map.set(c, {label:c, total:0, watched:0});
+      const row = map.get(c);
+      row.total++;
+      if(isWatched(f.url)) row.watched++;
+    });
+  });
+  return [...map.values()].sort((a,b)=>b.total-a.total).slice(0, topN);
+}
+function computeByDirector(topN=15){
+  const map = new Map();
+  FILMS.forEach(f=>{
+    if(!f.director) return;
+    if(!map.has(f.director)) map.set(f.director, {label:f.director, total:0, watched:0});
+    const row = map.get(f.director);
+    row.total++;
+    if(isWatched(f.url)) row.watched++;
+  });
+  // most interesting sorted by watched count first (directors you actually return to), then total
+  return [...map.values()].filter(r=>r.total>=2).sort((a,b)=> (b.watched-a.watched) || (b.total-a.total)).slice(0, topN);
+}
+
+// No minimum catalogue size here — this is deliberately exhaustive. A director
+// with only one film in the whole catalogue, which you've watched, matters just
+// as much as someone you've gone deep on across a dozen films.
+function computeAllWatchedDirectors(){
+  const map = new Map();
+  FILMS.forEach(f=>{
+    if(!f.director) return;
+    if(!map.has(f.director)) map.set(f.director, {name:f.director, total:0, watched:0});
+    const row = map.get(f.director);
+    row.total++;
+    if(isWatched(f.url)) row.watched++;
+  });
+  return [...map.values()].filter(r=>r.watched>0);
+}
+
+function directorStatusTag(r){
+  if(r.total===1) return `<span class="dir-status-tag only-film">only film here</span>`;
+  if(r.watched===r.total) return `<span class="dir-status-tag complete">complete (${r.total}/${r.total})</span>`;
+  return `<span class="dir-status-tag sampled">seen ${r.watched}/${r.total}</span>`;
+}
+
+function renderAllWatchedDirectors(){
+  const q = document.getElementById("all-dir-search").value.trim().toLowerCase();
+  const sortBy = document.getElementById("all-dir-sort").value;
+  let rows = computeAllWatchedDirectors();
+
+  if(q) rows = rows.filter(r=>r.name.toLowerCase().includes(q));
+
+  if(sortBy==="name") rows.sort((a,b)=>a.name.localeCompare(b.name));
+  else if(sortBy==="complete") rows.sort((a,b)=> (b.watched/b.total) - (a.watched/a.total) || b.watched-a.watched);
+  else rows.sort((a,b)=> b.watched-a.watched || b.total-a.total); // "watched" default
+
+  const el = document.getElementById("all-dir-list");
+  if(!rows.length){
+    el.innerHTML = `<div class="empty-chart">No matches.</div>`;
+    return;
+  }
+  el.innerHTML = rows.map(r=>`
+    <div class="diff-row" style="grid-template-columns:1fr 140px 90px;align-items:center;">
+      <span class="dir-link" data-director="${esc(r.name)}" style="cursor:pointer;">${esc(r.name)}</span>
+      ${directorStatusTag(r)}
+      <span style="font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);">${r.watched} / ${r.total}</span>
+    </div>`).join("");
+
+  el.querySelectorAll(".dir-link").forEach(link=>{
+    link.addEventListener("click", ()=> jumpToDirector(link.dataset.director));
+  });
+}
+
+let paceRange = "all";
+let paceView = "bars";
+
+function getWatchedEntries(){
+  return Object.entries(watched).map(([url, ts])=>({url, ts: typeof ts === "number" ? ts : Date.now()}));
+}
+
+// Zero-fills every day in the chosen range, not just days with activity, so
+// gaps show up honestly instead of being skipped over.
+function buildDailySeries(entries, rangeDays){
+  if(!entries.length) return [];
+  const dayMap = new Map();
+  entries.forEach(e=>{
+    const key = new Date(e.ts).toISOString().slice(0,10);
+    dayMap.set(key, (dayMap.get(key)||0) + 1);
+  });
+
+  const allKeys = [...dayMap.keys()].sort();
+  let startKey = allKeys[0];
+  const today = new Date();
+  if(rangeDays !== "all"){
+    const cutoff = new Date(today);
+    cutoff.setDate(cutoff.getDate() - (parseInt(rangeDays)-1));
+    startKey = cutoff.toISOString().slice(0,10);
+  }
+  const endKey = today.toISOString().slice(0,10);
+
+  const series = [];
+  let cursor = new Date(startKey+"T00:00:00");
+  const end = new Date(endKey+"T00:00:00");
+  while(cursor <= end){
+    const key = cursor.toISOString().slice(0,10);
+    series.push({key, count: dayMap.get(key) || 0});
+    cursor.setDate(cursor.getDate()+1);
+  }
+  return series;
+}
+
+function movingAverage(series, window=7){
+  return series.map((_,i)=>{
+    const start = Math.max(0, i-window+1);
+    const slice = series.slice(start, i+1);
+    const avg = slice.reduce((a,b)=>a+b.count,0) / slice.length;
+    return {key: series[i].key, value: avg};
+  });
+}
+
+function fmtDay(key){
+  return new Date(key+"T00:00:00").toLocaleDateString(undefined,{month:"short",day:"numeric"});
+}
+
+function renderDailyBars(el, series){
+  const maxCount = Math.max(...series.map(d=>d.count), 1);
+  const labelEvery = Math.max(1, Math.ceil(series.length / 10));
+  el.innerHTML = `
+    <div style="display:flex;align-items:flex-end;gap:${series.length>60?1:4}px;height:160px;border-bottom:1px solid var(--line);padding-bottom:2px;">
+      ${series.map(d=>{
+        const heightPct = Math.max((d.count / maxCount) * 100, d.count>0?4:0);
+        return `<div title="${fmtDay(d.key)}: ${d.count} film${d.count===1?"":"s"}" style="flex:1;min-width:2px;height:${heightPct}%;background:${d.count>0?'var(--gold)':'var(--line)'};border-radius:2px 2px 0 0;"></div>`;
+      }).join("")}
+    </div>
+    <div style="display:flex;gap:${series.length>60?1:4}px;margin-top:6px;">
+      ${series.map((d,i)=>{
+        const show = (i % labelEvery === 0) || i===series.length-1;
+        return `<div style="flex:1;min-width:2px;text-align:center;font-family:var(--font-mono);font-size:9.5px;color:var(--ink-faint);">${show?fmtDay(d.key):""}</div>`;
+      }).join("")}
+    </div>`;
+}
+
+function renderTrendLine(el, series){
+  const smoothed = movingAverage(series, 7);
+  const W = 760, H = 180, PAD = 24;
+  const maxVal = Math.max(...smoothed.map(d=>d.value), 1);
+  const points = smoothed.map((d,i)=>{
+    const x = PAD + (W-2*PAD) * (i/(smoothed.length-1||1));
+    const y = H-PAD - (H-2*PAD) * (d.value/maxVal);
+    return [x,y];
+  });
+  const pathD = points.map((p,i)=>(i===0?"M":"L")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+  const areaD = pathD + ` L ${points[points.length-1][0].toFixed(1)} ${H-PAD} L ${points[0][0].toFixed(1)} ${H-PAD} Z`;
+
+  el.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;">
+      <line x1="${PAD}" y1="${H-PAD}" x2="${W-PAD}" y2="${H-PAD}" stroke="#332c22" stroke-width="1"/>
+      <path d="${areaD}" fill="rgba(200,162,74,0.12)" stroke="none"/>
+      <path d="${pathD}" fill="none" stroke="#c8a24a" stroke-width="2"/>
+    </svg>
+    <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10.5px;color:var(--ink-faint);margin-top:4px;">
+      <span>${fmtDay(series[0].key)}</span>
+      <span>7-day moving average</span>
+      <span>${fmtDay(series[series.length-1].key)}</span>
+    </div>`;
+}
+
+function renderProgressChart(){
+  const el = document.getElementById("chart-progress");
+  const note = document.getElementById("pace-note");
+  const entries = getWatchedEntries();
+
+  if(entries.length === 0){
+    el.innerHTML = `<div class="empty-chart">Mark a few films as watched to see your pace over time.</div>`;
+    note.textContent = "";
+    return;
+  }
+
+  const series = buildDailySeries(entries, paceRange);
+  const activeDays = series.filter(d=>d.count>0).length;
+  const maxCount = Math.max(...series.map(d=>d.count));
+  const totalInRange = series.reduce((a,b)=>a+b.count,0);
+
+  if(paceView === "bars"){
+    renderDailyBars(el, series);
+    note.textContent = `${totalInRange} film${totalInRange===1?"":"s"} watched across ${activeDays} active day${activeDays===1?"":"s"} \u00b7 busiest day: ${maxCount} film${maxCount===1?"":"s"}`;
+  }else{
+    if(series.length < 7){
+      el.innerHTML = `<div class="empty-chart">Need at least a week of history for a meaningful trend line — try Daily bars for now.</div>`;
+      note.textContent = "";
+      return;
+    }
+    renderTrendLine(el, series);
+    note.textContent = `Smoothed over a 7-day window so single binge days don't dominate the shape \u2014 flip to Daily bars for exact counts.`;
+  }
+}
+
+function renderInsights(){
+  renderBarGroup("chart-decade", computeByDecade(), 20);
+  renderBarGroup("chart-country", computeByCountry(15), 15);
+  renderBarGroup("chart-director", computeByDirector(15), 15);
+  renderAllWatchedDirectors();
+  renderProgressChart();
+}
+function initTabs(){
+  document.querySelectorAll(".tab").forEach(t=>{
+    t.addEventListener("click", ()=>{
+      document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+      document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+      t.classList.add("active");
+      document.getElementById("panel-"+t.dataset.tab).classList.add("active");
+      if(t.dataset.tab === "insights") renderInsights();
+    });
+  });
+}
+
+// Rebuilds every dropdown, index, and visible panel from the current FILMS array.
+// Called on first load and again whenever a fresh catalog file is uploaded.
+function rebuildAll(){
+  initHeader();
+  populateCountryFilters();
+  populateTrackerDirectors();
+  populateYearBounds();
+  populatePickDirectors();
+  DIRECTOR_INDEX = null; // force rebuild against the new FILMS
+  document.getElementById("retro-detail").style.display = "none";
+  renderTracker();
+  renderRetroGrid();
+}
+
+function keyOfFilm(f){ return f.url || f.title; }
+
+
+const LAST_DIFF_KEY = "last-catalog-diff";
+
+// Renders the diff summary box from plain data — used both right after a live
+// upload and when reloading a previously-saved diff, so the box stays populated
+// permanently instead of vanishing once you close and reopen the file.
+function renderDiffBox(oldCount, newCount, added, removed, whenSaved){
+  const box = document.getElementById("catalog-diff-box");
+  const summary = document.getElementById("catalog-diff-summary");
+  const details = document.getElementById("catalog-diff-details");
+  box.style.display = "block";
+  details.style.display = "none";
+
+  const netChange = newCount - oldCount;
+  const whenLabel = whenSaved ? ` <span style="color:var(--ink-faint);">(as of ${new Date(whenSaved).toLocaleDateString()})</span>` : "";
+
+  if(added.length===0 && removed.length===0){
+    summary.innerHTML = `No changes from the previous catalog &mdash; ${newCount.toLocaleString()} films.${whenLabel}`;
+    return;
+  }
+
+  summary.innerHTML = `
+    <span><b>${oldCount.toLocaleString()}</b> &rarr; <b>${newCount.toLocaleString()}</b> films
+      (${netChange>=0?"+":""}${netChange})${whenLabel}</span>
+    <span class="added">+${added.length} added</span>
+    <span class="removed">&minus;${removed.length} removed</span>
+    <span class="toggle-link" id="catalog-diff-toggle">show details</span>
+  `;
+
+  const rows = [
+    ...added.map(f=>`<div class="diff-row added"><span>${esc(f.title)}</span><span>${esc(f.director||"")}</span><span>newly added</span></div>`),
+    ...removed.map(f=>`<div class="diff-row removed"><span>${esc(f.title)}</span><span>${esc(f.director||"")}</span><span>removed</span></div>`)
+  ].join("");
+  details.innerHTML = rows;
+
+  document.getElementById("catalog-diff-toggle").addEventListener("click", (e)=>{
+    const open = details.style.display !== "none";
+    details.style.display = open ? "none" : "block";
+    e.target.textContent = open ? "show details" : "hide details";
+  });
+}
+
+async function saveLastDiff(oldCount, newCount, added, removed){
+  const payload = {
+    oldCount, newCount,
+    added: added.map(f=>({title:f.title, director:f.director||""})),
+    removed: removed.map(f=>({title:f.title, director:f.director||""})),
+    savedAt: Date.now()
+  };
+  await storageSet(LAST_DIFF_KEY, JSON.stringify(payload));
+}
+
+async function loadLastDiff(){
+  try{
+    const res = await storageGet(LAST_DIFF_KEY);
+    if(!res || !res.value) return;
+    const d = JSON.parse(res.value);
+    if(!d) return; // explicitly cleared via reset-history
+    renderDiffBox(d.oldCount, d.newCount, d.added, d.removed, d.savedAt);
+  }catch(e){ /* nothing saved yet, box just stays hidden */ }
+}
+
+function showCatalogDiff(oldFilms, newFilms){
+  const oldMap = new Map(oldFilms.map(f=>[keyOfFilm(f), f]));
+  const newMap = new Map(newFilms.map(f=>[keyOfFilm(f), f]));
+  const added = [...newMap.keys()].filter(k=>!oldMap.has(k)).map(k=>newMap.get(k));
+  const removed = [...oldMap.keys()].filter(k=>!newMap.has(k)).map(k=>oldMap.get(k));
+
+  // Persist first-seen dates and the removal log, same as before.
+  const now = Date.now();
+  added.forEach(f=>{ addedDates[keyOfFilm(f)] = now; });
+  removed.forEach(f=>{
+    removedLog.unshift({title:f.title, director:f.director||"", url:f.url||"", removedAt: now});
+  });
+  saveTrackingMeta();
+
+  // Persist the summary box itself so it survives closing and reopening the file.
+  saveLastDiff(oldFilms.length, newFilms.length, added, removed);
+
+  renderDiffBox(oldFilms.length, newFilms.length, added, removed, now);
+}
+
+async function handleCatalogUpload(input){
+  const file = input.files[0];
+  if(!file) return;
+  const statusEl = document.getElementById("catalog-status");
+  statusEl.textContent = "reading…";
+  const reader = new FileReader();
+  reader.onload = async (e)=>{
+    let parsed;
+    try{ parsed = JSON.parse(e.target.result); }
+    catch(err){ statusEl.textContent = "couldn't parse that file"; return; }
+    if(!Array.isArray(parsed) || !parsed.length || !parsed[0].title){
+      statusEl.textContent = "file doesn't look like a films catalog";
+      return;
+    }
+    const previousFilms = FILMS; // snapshot before overwrite, so we can diff against it
+    FILMS = parsed;
+    await saveCatalogOverride(FILMS);
+    rebuildAll();
+    await refreshCatalogStatus();
+    showCatalogDiff(previousFilms, parsed);
+  };
+  reader.readAsText(file);
+}
+
+// ---------- wire up ----------
+async function init(){
+  await loadWatched();
+  await loadTrackingMeta();
+  await loadLastDiff();
+  await loadCatalogOverride(); // pulls in a saved monthly-scrape update if one exists
+
+  rebuildAll();
+  initTabs();
+
+  document.getElementById("search").addEventListener("input", renderTracker);
+  document.getElementById("filter-status").addEventListener("change", renderTracker);
+  document.getElementById("filter-country").addEventListener("change", ()=>{
+    populateTrackerDirectors(); // cascade: director list narrows to this country
+    renderTracker();
+  });
+  document.getElementById("filter-director").addEventListener("change", renderTracker);
+  document.getElementById("filter-year-from").addEventListener("input", renderTracker);
+  document.getElementById("filter-year-to").addEventListener("input", renderTracker);
+  document.getElementById("clear-filters").addEventListener("click", ()=>{
+    document.getElementById("search").value="";
+    document.getElementById("filter-status").value="all";
+    document.getElementById("filter-country").value="";
+    document.getElementById("filter-director").value=""; // must clear before rebuild, or the rebuild restores it
+    document.getElementById("filter-year-from").value="";
+    document.getElementById("filter-year-to").value="";
+    populateTrackerDirectors();
+    renderTracker();
+  });
+
+  document.getElementById("retro-search").addEventListener("input", renderRetroGrid);
+  document.getElementById("retro-sort").addEventListener("change", renderRetroGrid);
+
+  document.getElementById("pick-btn").addEventListener("click", drawPick);
+
+  document.getElementById("file-old").addEventListener("change", e=>readJsonFile(e.target, d=>{snapOld=d; updateDiffStatus();}));
+  document.getElementById("file-new").addEventListener("change", e=>readJsonFile(e.target, d=>{snapNew=d; updateDiffStatus();}));
+  document.getElementById("diff-btn").addEventListener("click", runDiff);
+
+  setLeavingLink();
+  document.getElementById("check-leaving-btn").addEventListener("click", checkLeavingList);
+
+  document.getElementById("all-dir-search").addEventListener("input", renderAllWatchedDirectors);
+  document.getElementById("all-dir-sort").addEventListener("change", renderAllWatchedDirectors);
+
+  document.getElementById("catalog-file").addEventListener("change", e=>handleCatalogUpload(e.target));
+
+  document.getElementById("pace-range").addEventListener("change", (e)=>{
+    paceRange = e.target.value;
+    renderProgressChart();
+  });
+  document.querySelectorAll(".pace-view-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      document.querySelectorAll(".pace-view-btn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      paceView = btn.dataset.view;
+      renderProgressChart();
+    });
+  });
+
+  // Back-to-top: appears once you've scrolled a bit down the page.
+  const backBtn = document.getElementById("back-to-top");
+  window.addEventListener("scroll", ()=>{
+    backBtn.classList.toggle("visible", window.scrollY > 400);
+  });
+  backBtn.addEventListener("click", ()=>{
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  document.getElementById("stat-watched-btn").addEventListener("click", ()=>{
+    // switch to Tracker tab
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+    document.querySelector('.tab[data-tab="tracker"]').classList.add("active");
+    document.getElementById("panel-tracker").classList.add("active");
+    // isolate to just watched films
+    document.getElementById("filter-status").value = "watched";
+    document.getElementById("search").value = "";
+    document.getElementById("filter-country").value = "";
+    populateTrackerDirectors();
+    renderTracker();
+    document.getElementById("panel-tracker").scrollIntoView({behavior:"smooth", block:"start"});
+  });
+}
+init();
+
+</script>

@@ -1,0 +1,12 @@
+# Scraped catalog snapshots — regenerate locally, don't commit
+criterion_films.json
+criterion_films.csv
+criterion_films_*.json
+criterion_films_*.csv
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+__pycache__/
+*.pyc
