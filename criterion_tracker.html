@@ -222,6 +222,7 @@ input[type=text]{min-width:220px;}
       <div class="stat"><b id="stat-countries">&mdash;</b>countries</div>
       <div class="stat" style="margin-left:auto;">
         <label class="btn" style="cursor:pointer;font-size:10.5px;">Update catalog (.json)<input type="file" id="catalog-file" accept=".json" style="display:none;"></label>
+        <button class="btn" id="export-watched-btn" style="font-size:10.5px;margin-left:8px;">Export watched films</button>
         <div id="catalog-status" style="font-family:var(--font-mono);font-size:10px;color:var(--ink-faint);margin-top:6px;"></div>
       </div>
     </div>
@@ -324,6 +325,12 @@ input[type=text]{min-width:220px;}
       </div>
       <div id="leaving-list"></div>
     </div>
+
+    <details style="margin-top:28px;">
+      <summary style="cursor:pointer;font-family:var(--font-mono);font-size:11.5px;color:var(--ink-faint);letter-spacing:.04em;">Full history: everything added or removed over time</summary>
+      <p class="chart-note" style="margin-top:10px;">The summary box above only shows your most recent update — this is the complete running log, permanent across every "Update catalog" you've ever run.</p>
+      <div class="filmlist" id="removed-log-list" style="margin-top:12px;max-height:280px;overflow-y:auto;"></div>
+    </details>
 
     <details style="margin-top:20px;">
       <summary style="cursor:pointer;font-family:var(--font-mono);font-size:11.5px;color:var(--ink-faint);letter-spacing:.04em;">Older method: compare two of your own catalog snapshots</summary>
@@ -1134,6 +1141,56 @@ function rebuildAll(){
 
 function keyOfFilm(f){ return f.url || f.title; }
 
+// Exports the actual films you've watched — title, director, country, year,
+// and the date you checked them off — as a plain CSV. Not internal tracking
+// metadata, just a readable record of what you've watched.
+function csvEscape(val){
+  const s = String(val ?? "");
+  if(/[",\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+  return s;
+}
+function exportWatchedFilms(){
+  const rows = FILMS
+    .filter(f=>isWatched(f.url))
+    .map(f=>({...f, watchedAt: watched[f.url]}))
+    .sort((a,b)=> (a.watchedAt||0) - (b.watchedAt||0));
+
+  if(!rows.length){
+    alert("You haven't marked any films as watched yet.");
+    return;
+  }
+
+  const header = ["Title","Director","Country","Year","Date Watched"];
+  const lines = [header.join(",")];
+  rows.forEach(f=>{
+    const dateWatched = f.watchedAt ? new Date(f.watchedAt).toLocaleDateString() : "";
+    lines.push([f.title, f.director||"", f.country||"", f.year||"", dateWatched].map(csvEscape).join(","));
+  });
+
+  const blob = new Blob([lines.join("\n")], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `watched-films-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function renderRemovedLog(){
+  const el = document.getElementById("removed-log-list");
+  if(!el) return;
+  if(!removedLog.length){
+    el.innerHTML = `<div class="empty-chart">Nothing logged yet — this fills in the next time you run "Update catalog" and something's disappeared.</div>`;
+    return;
+  }
+  el.innerHTML = removedLog.map(f=>`
+    <div class="diff-row removed">
+      <span>${esc(f.title)}</span>
+      <span>${esc(f.director||"")}</span>
+      <span>left ${new Date(f.removedAt).toLocaleDateString()}</span>
+    </div>`).join("");
+}
+
 
 const LAST_DIFF_KEY = "last-catalog-diff";
 
@@ -1286,6 +1343,7 @@ async function init(){
   document.getElementById("all-dir-sort").addEventListener("change", renderAllWatchedDirectors);
 
   document.getElementById("catalog-file").addEventListener("change", e=>handleCatalogUpload(e.target));
+  document.getElementById("export-watched-btn").addEventListener("click", exportWatchedFilms);
 
   document.getElementById("pace-range").addEventListener("change", (e)=>{
     paceRange = e.target.value;
