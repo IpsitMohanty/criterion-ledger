@@ -544,7 +544,12 @@ function initHeader(){
   refreshWatchedStat();
 }
 function refreshWatchedStat(){
-  document.getElementById("stat-watched").textContent = Object.keys(watched).length.toLocaleString();
+  // Count only watched films that still exist in the current catalog — a film
+  // can stay in your watch history after it's removed from Criterion, and that
+  // history is worth keeping, but the header number should match what every
+  // other view (Tracker filter, CSV export, Insights) actually shows.
+  const visibleWatchedCount = FILMS.filter(f=>isWatched(f.url)).length;
+  document.getElementById("stat-watched").textContent = visibleWatchedCount.toLocaleString();
 }
 
 function resetSelect(sel, placeholderLabel){
